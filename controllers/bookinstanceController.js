@@ -122,10 +122,83 @@ exports.bookinstance_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display BookInstance update form on GET.
 exports.bookinstance_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: BookInstance update GET");
+  const [bookInstance, allBooks] = await Promise.all([
+    BookInstance.findById(req.params.id).populate("book").exec(),
+    Book.find({}, "title").exec(),
+  ])
+
+  if (bookInstance === null) {
+    const err = new Error("Book instance not found");
+    err.status= 404;
+    return next(err);
+  }
+
+  res.render("bookinstance_form", {
+    title: "Edit Book Instance",
+    bookinstance: bookInstance,
+    book_list: allBooks,
+    selected_book: bookInstance.book._id,
+  })
 });
 
 // Handle bookinstance update on POST.
-exports.bookinstance_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: BookInstance update POST");
-});
+exports.bookinstance_update_post = [
+  body("imprint", "Imprint must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const instance = new BookInstance({
+      book: req.body.book,
+      imprint: req.body.imprint,
+      status: req.body.status,
+      due_back: req.body.due_back,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      const [bookInstance, allBooks] = await Promise.all([
+        BookInstance.findById(req.params.id).populate("book").exec(),
+        Book.find({}, "title").exec(),
+      ]);
+      res.render("bookinstance_form", {
+        title: "Edit Book Instance",
+        bookinstance: bookInstance,
+        book_list: allBooks,
+        selected_book: bookInstance.book._id,
+      });
+      return;
+    } else {
+      const updatedInstance = await BookInstance.findByIdAndUpdate(req.params.id, instance, {});
+      res.redirect(updatedInstance.url);
+    }
+  })
+];
+
+// Handle book update on POST.
+exports.book_update_post = [
+
+
+
+
+
+    if (!errors.isEmpty()) {
+      // There are errors. Render form again with sanitized values/error messages.
+
+      // Get all authors and genres for form
+      const [allAuthors, allGenres] = await Promise.all([
+        Author.find().exec(),
+        Genre.find().exec(),
+      ]);
+
+      res.render("book_form", {
+        title: "Update Book",
+        authors: allAuthors,
+        genres: allGenres,
+        book: book,
+        errors: errors.array(),
+      });
+      return;
