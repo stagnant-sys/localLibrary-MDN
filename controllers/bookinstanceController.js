@@ -177,28 +177,3 @@ exports.bookinstance_update_post = [
     }
   })
 ];
-
-// Handle book update on POST.
-exports.book_update_post = [
-
-
-
-
-
-    if (!errors.isEmpty()) {
-      // There are errors. Render form again with sanitized values/error messages.
-
-      // Get all authors and genres for form
-      const [allAuthors, allGenres] = await Promise.all([
-        Author.find().exec(),
-        Genre.find().exec(),
-      ]);
-
-      res.render("book_form", {
-        title: "Update Book",
-        authors: allAuthors,
-        genres: allGenres,
-        book: book,
-        errors: errors.array(),
-      });
-      return;
