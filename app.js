@@ -25,9 +25,7 @@ const limiter = RateLimit({
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
 
-const dev_db_url =
-  "mongodb+srv://admin:ZFFwzMeEGMw0GuZL@cluster0.ant3sek.mongodb.net/local_library?retryWrites=true&w=majority";
-const mongoDB = process.env.MONGODB_URL || dev_db_url;
+const mongoDB = process.env.MONGODB_URL;
 
 main().catch((err) => console.log(err));
 async function main() {
